@@ -31,6 +31,25 @@
             width: 40px;
         }
 
+        input[type="text"],
+        input[type="number"] {
+            border: 1px solid rgb(136, 136, 136);
+        }
+
+        input#lengthSlider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 10px;
+            background: #ccc;
+            outline: none;
+            opacity: .7;
+        }
+
+        button#generate {
+            border: 1px solid rgb(136, 136, 136);
+        }
+
         div.lowerCases,
         div.upperCases,
         div.numbers,
@@ -211,12 +230,18 @@
     </script>
     <div class="body">
         <div class="generate">
-            <input type="text" id="password" /><button onclick="generate()">Generate</button>
-            <label>Length:</label>
-            <input type="number" id="length" min="4" max="256" value="16"
-                oninput="document.querySelector('input#lengthSlider').value = this.value" />
-            <input type="range" min="4" max="256" value="16" class="slider" id="lengthSlider"
-                oninput="document.querySelector('input#length').value = this.value" />
+            <div class="r1">
+                <input type="text" id="password" /><button id="generate" onclick="generate()">Generate</button>
+            </div>
+            <div class="r2">
+                <label>Length:</label>
+                <input type="number" id="length" min="4" max="256" value="16"
+                    oninput="document.querySelector('input#lengthSlider').value = this.value" />
+            </div>
+            <div class="r3">
+                <input type="range" min="4" max="256" value="16" class="slider" id="lengthSlider"
+                    oninput="document.querySelector('input#length').value = this.value" />
+            </div>
             <div class="lowerCases">
                 <label class="checkboxType" for="allLowercase">Lowercase characters<input type="checkbox"
                         name="allLowercase" id="allLowercase" checked hidden></label>
