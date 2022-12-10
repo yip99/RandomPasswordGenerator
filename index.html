@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Random Password Generator</title>
+    <style>
+        * {
+            font-family: monospace;
+        }
+
+        div.body {
+            display: flex;
+            margin: auto;
+            justify-content: center;
+            width: 50%;
+        }
+
+        div.generate,
+        div.record {
+            width: 30%;
+        }
+
+        div.generate {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: center;
+        }
+
+        input#length {
+            width: 40px;
+        }
+
+        div.lowerCases,
+        div.upperCases,
+        div.numbers,
+        div.symbols {
+            display: flex;
+            /* flex-wrap: wrap; */
+            flex-flow: row wrap;
+            justify-content: center;
+            /* align-content: space-around; */
+        }
+
+        label.character,
+        label.checkboxType {
+            -webkit-touch-callout: none;
+            /* iOS Safari */
+            -webkit-user-select: none;
+            /* Safari */
+            -khtml-user-select: none;
+            /* Konqueror HTML */
+            -moz-user-select: none;
+            /* Old versions of Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
+            /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+            display: inline-block;
+            min-width: 1.2em;
+            min-height: 1.2em;
+            text-align: center;
+            border: solid 2px rgb(136, 136, 136);
+            margin: 1px;
+        }
+
+        label.checkboxType:has(input:checked) {
+            background-color: #158158;
+            color: white;
+        }
+
+        label:has(input:checked) {
+            border: solid 2px #158158;
+            background-color: #158158;
+            color: white;
+        }
+
+        label[class="checkboxType"] {
+            width: 100%;
+            padding: 5px;
+        }
+
+        ul {
+            width: 145px;
+            list-style-type: none;
+            height: 300px;
+            overflow: auto;
+        }
+
+        li {
+            width: 125px;
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-all;
+            /* border-bottom: 1px solid black; */
+            border-top: 1px solid black;
+        }
+
+        li:nth-child(even) {
+            background: #ccc;
+        }
+
+        li:not(:last-child) {
+            /* border-bottom: 1px solid black; */
+        }
+
+        li:last-child {
+            border-bottom: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        window.onload = function () {
+            for (let input of document.querySelectorAll('input[type="checkbox"]')) {
+                input.addEventListener("click", function (event) {
+                    let elementName = event.target.name;
+                    toggleAll(elementName);
+                    // event.preventDefault();
+                });
+            }
+            document.querySelector('input#password').addEventListener("click", function (event) {
+                navigator.clipboard.writeText(event.target.value);
+            });
+            document.querySelector('ul').addEventListener("click", function (event) {
+                navigator.clipboard.writeText(event.target.innerText);
+            });
+        }
+
+        function toggleAll(type) {
+            if (type.startsWith('all')) {
+                type = type.toLowerCase().split('all')[1];
+                let all = [];
+                let checked = [];
+                document.querySelectorAll(`input[name="${type}"]`).forEach((element) => {
+                    all.push(element.value);
+                    if (element.checked === true) {
+                        checked.push(element.value);
+                    }
+                });
+                if (all.length === checked.length) {
+                    document.querySelectorAll(`input[name="${type}"]`).forEach((element) => {
+                        element.checked = false;
+                    });
+                } else {
+                    document.querySelectorAll(`input[name="${type}"]`).forEach((element) => {
+                        element.checked = true;
+                    });
+                }
+            } else {
+                let all = [];
+                let checked = [];
+                document.querySelectorAll(`input[name="${type}"]`).forEach((element) => {
+                    all.push(element.value);
+                    if (element.checked === true) {
+                        checked.push(element.value);
+                    }
+                });
+                if (all.length === checked.length) {
+                    document.querySelector(`input[name="all${type[0].toUpperCase() + type.slice(1)}"]`).checked = true;
+                } else {
+                    document.querySelector(`input[name="all${type[0].toUpperCase() + type.slice(1)}"]`).checked = false;
+                }
+            }
+        }
+
+        function generate() {
+            let length = document.querySelector('input#length').value;
+            let characters = [];
+            let charactersInclude = {};
+            let lowerCases = [];
+            let upperCases = [];
+            let numbers = [];
+            let symbols = [];
+            let password = '';
+
+            for (let lowercase of document.querySelectorAll('input[name="lowercase"]:checked')) {
+                lowerCases.push(lowercase.value);
+            }
+            for (let uppercase of document.querySelectorAll('input[name="uppercase"]:checked')) {
+                upperCases.push(uppercase.value);
+            }
+            for (let number of document.querySelectorAll('input[name="number"]:checked')) {
+                numbers.push(number.value);
+            }
+            for (let symbol of document.querySelectorAll('input[name="symbol"]:checked')) {
+                symbols.push(symbol.value);
+            }
+
+            characters = [...lowerCases, ...upperCases, ...numbers, ...symbols];
+            charactersInclude = [lowerCases, upperCases, numbers, symbols];
+
+            for (let characterType of charactersInclude) {
+                if (characterType.length > 0 && password.length < length) {
+                    password += characterType[(Math.floor(Math.random() * characterType.length))];
+                }
+            }
+
+            for (let i = password.length; i < length; i++) {
+                password += characters[(Math.floor(Math.random() * characters.length))];
+            }
+            password = password.split('').sort(function () { return 0.5 - Math.random() }).join('');
+            let ul = document.querySelector('ul');
+            let li = document.createElement('li');
+            li.innerText = password;
+            ul.appendChild(li);
+            ul.scrollTop = li.offsetHeight + li.offsetTop;
+            document.querySelector('input#password').value = password;
+        }
+    </script>
+    <div class="body">
+        <div class="generate">
+            <input type="text" id="password" /><button onclick="generate()">Generate</button>
+            <label>Length:</label>
+            <input type="number" id="length" min="4" max="256" value="16"
+                oninput="document.querySelector('input#lengthSlider').value = this.value" />
+            <input type="range" min="4" max="256" value="16" class="slider" id="lengthSlider"
+                oninput="document.querySelector('input#length').value = this.value" />
+            <div class="lowerCases">
+                <label class="checkboxType" for="allLowercase">Lowercase characters<input type="checkbox"
+                        name="allLowercase" id="allLowercase" checked hidden></label>
+                <label class="character" name="lowercase" for="a">a<input type="checkbox" class="character" id="a"
+                        name="lowercase" value="a" checked hidden></label>
+                <label class="character" name="lowercase" for="b">b<input type="checkbox" class="character" id="b"
+                        name="lowercase" value="b" checked hidden></label>
+                <label class="character" name="lowercase" for="c">c<input type="checkbox" class="character" id="c"
+                        name="lowercase" value="c" checked hidden></label>
+                <label class="character" name="lowercase" for="d">d<input type="checkbox" class="character" id="d"
+                        name="lowercase" value="d" checked hidden></label>
+                <label class="character" name="lowercase" for="e">e<input type="checkbox" class="character" id="e"
+                        name="lowercase" value="e" checked hidden></label>
+                <label class="character" name="lowercase" for="f">f<input type="checkbox" class="character" id="f"
+                        name="lowercase" value="f" checked hidden></label>
+                <label class="character" name="lowercase" for="g">g<input type="checkbox" class="character" id="g"
+                        name="lowercase" value="g" checked hidden></label>
+                <label class="character" name="lowercase" for="h">h<input type="checkbox" class="character" id="h"
+                        name="lowercase" value="h" checked hidden></label>
+                <label class="character" name="lowercase" for="i">i<input type="checkbox" class="character" id="i"
+                        name="lowercase" value="i" checked hidden></label>
+                <label class="character" name="lowercase" for="j">j<input type="checkbox" class="character" id="j"
+                        name="lowercase" value="j" checked hidden></label>
+                <label class="character" name="lowercase" for="k">k<input type="checkbox" class="character" id="k"
+                        name="lowercase" value="k" checked hidden></label>
+                <label class="character" name="lowercase" for="l">l<input type="checkbox" class="character" id="l"
+                        name="lowercase" value="l" checked hidden></label>
+                <label class="character" name="lowercase" for="m">m<input type="checkbox" class="character" id="m"
+                        name="lowercase" value="m" checked hidden></label>
+                <label class="character" name="lowercase" for="n">n<input type="checkbox" class="character" id="n"
+                        name="lowercase" value="n" checked hidden></label>
+                <label class="character" name="lowercase" for="o">o<input type="checkbox" class="character" id="o"
+                        name="lowercase" value="o" checked hidden></label>
+                <label class="character" name="lowercase" for="p">p<input type="checkbox" class="character" id="p"
+                        name="lowercase" value="p" checked hidden></label>
+                <label class="character" name="lowercase" for="q">q<input type="checkbox" class="character" id="q"
+                        name="lowercase" value="q" checked hidden></label>
+                <label class="character" name="lowercase" for="r">r<input type="checkbox" class="character" id="r"
+                        name="lowercase" value="r" checked hidden></label>
+                <label class="character" name="lowercase" for="s">s<input type="checkbox" class="character" id="s"
+                        name="lowercase" value="s" checked hidden></label>
+                <label class="character" name="lowercase" for="t">t<input type="checkbox" class="character" id="t"
+                        name="lowercase" value="t" checked hidden></label>
+                <label class="character" name="lowercase" for="u">u<input type="checkbox" class="character" id="u"
+                        name="lowercase" value="u" checked hidden></label>
+                <label class="character" name="lowercase" for="v">v<input type="checkbox" class="character" id="v"
+                        name="lowercase" value="v" checked hidden></label>
+                <label class="character" name="lowercase" for="w">w<input type="checkbox" class="character" id="w"
+                        name="lowercase" value="w" checked hidden></label>
+                <label class="character" name="lowercase" for="x">x<input type="checkbox" class="character" id="x"
+                        name="lowercase" value="x" checked hidden></label>
+                <label class="character" name="lowercase" for="y">y<input type="checkbox" class="character" id="y"
+                        name="lowercase" value="y" checked hidden></label>
+                <label class="character" name="lowercase" for="z">z<input type="checkbox" class="character" id="z"
+                        name="lowercase" value="z" checked hidden></label>
+            </div>
+            <div class="upperCases">
+                <label class="checkboxType" for="allUppercase">Uppercase characters<input type="checkbox"
+                        name="allUppercase" id="allUppercase" hidden></label>
+                <label class="character" name="uppercase" for="A">A<input type="checkbox" class="character" id="A"
+                        name="uppercase" value="A" hidden></label>
+                <label class="character" name="uppercase" for="B">B<input type="checkbox" class="character" id="B"
+                        name="uppercase" value="B" hidden></label>
+                <label class="character" name="uppercase" for="C">C<input type="checkbox" class="character" id="C"
+                        name="uppercase" value="C" hidden></label>
+                <label class="character" name="uppercase" for="D">D<input type="checkbox" class="character" id="D"
+                        name="uppercase" value="D" hidden></label>
+                <label class="character" name="uppercase" for="E">E<input type="checkbox" class="character" id="E"
+                        name="uppercase" value="E" hidden></label>
+                <label class="character" name="uppercase" for="F">F<input type="checkbox" class="character" id="F"
+                        name="uppercase" value="F" hidden></label>
+                <label class="character" name="uppercase" for="G">G<input type="checkbox" class="character" id="G"
+                        name="uppercase" value="G" hidden></label>
+                <label class="character" name="uppercase" for="H">H<input type="checkbox" class="character" id="H"
+                        name="uppercase" value="H" hidden></label>
+                <label class="character" name="uppercase" for="I">I<input type="checkbox" class="character" id="I"
+                        name="uppercase" value="I" hidden></label>
+                <label class="character" name="uppercase" for="J">J<input type="checkbox" class="character" id="J"
+                        name="uppercase" value="J" hidden></label>
+                <label class="character" name="uppercase" for="K">K<input type="checkbox" class="character" id="K"
+                        name="uppercase" value="K" hidden></label>
+                <label class="character" name="uppercase" for="L">L<input type="checkbox" class="character" id="L"
+                        name="uppercase" value="L" hidden></label>
+                <label class="character" name="uppercase" for="M">M<input type="checkbox" class="character" id="M"
+                        name="uppercase" value="M" hidden></label>
+                <label class="character" name="uppercase" for="N">N<input type="checkbox" class="character" id="N"
+                        name="uppercase" value="N" hidden></label>
+                <label class="character" name="uppercase" for="O">O<input type="checkbox" class="character" id="O"
+                        name="uppercase" value="O" hidden></label>
+                <label class="character" name="uppercase" for="P">P<input type="checkbox" class="character" id="P"
+                        name="uppercase" value="P" hidden></label>
+                <label class="character" name="uppercase" for="Q">Q<input type="checkbox" class="character" id="Q"
+                        name="uppercase" value="Q" hidden></label>
+                <label class="character" name="uppercase" for="R">R<input type="checkbox" class="character" id="R"
+                        name="uppercase" value="R" hidden></label>
+                <label class="character" name="uppercase" for="S">S<input type="checkbox" class="character" id="S"
+                        name="uppercase" value="S" hidden></label>
+                <label class="character" name="uppercase" for="T">T<input type="checkbox" class="character" id="T"
+                        name="uppercase" value="T" hidden></label>
+                <label class="character" name="uppercase" for="U">U<input type="checkbox" class="character" id="U"
+                        name="uppercase" value="U" hidden></label>
+                <label class="character" name="uppercase" for="V">V<input type="checkbox" class="character" id="V"
+                        name="uppercase" value="V" hidden></label>
+                <label class="character" name="uppercase" for="W">W<input type="checkbox" class="character" id="W"
+                        name="uppercase" value="W" hidden></label>
+                <label class="character" name="uppercase" for="X">X<input type="checkbox" class="character" id="X"
+                        name="uppercase" value="X" hidden></label>
+                <label class="character" name="uppercase" for="Y">Y<input type="checkbox" class="character" id="Y"
+                        name="uppercase" value="Y" hidden></label>
+                <label class="character" name="uppercase" for="Z">Z<input type="checkbox" class="character" id="Z"
+                        name="uppercase" value="Z" hidden></label>
+            </div>
+            <div class="numbers">
+                <label class="checkboxType" for="allNumber">Numbers
+                    <input type="checkbox" name="allNumber" id="allNumber" checked hidden></label>
+                <label class="character" name="number" for="0">0<input type="checkbox" class="character" id="0"
+                        name="number" value="0" checked hidden></label>
+                <label class="character" name="number" for="1">1<input type="checkbox" class="character" id="1"
+                        name="number" value="1" checked hidden></label>
+                <label class="character" name="number" for="2">2<input type="checkbox" class="character" id="2"
+                        name="number" value="2" checked hidden></label>
+                <label class="character" name="number" for="3">3<input type="checkbox" class="character" id="3"
+                        name="number" value="3" checked hidden></label>
+                <label class="character" name="number" for="4">4<input type="checkbox" class="character" id="4"
+                        name="number" value="4" checked hidden></label>
+                <label class="character" name="number" for="5">5<input type="checkbox" class="character" id="5"
+                        name="number" value="5" checked hidden></label>
+                <label class="character" name="number" for="6">6<input type="checkbox" class="character" id="6"
+                        name="number" value="6" checked hidden></label>
+                <label class="character" name="number" for="7">7<input type="checkbox" class="character" id="7"
+                        name="number" value="7" checked hidden></label>
+                <label class="character" name="number" for="8">8<input type="checkbox" class="character" id="8"
+                        name="number" value="8" checked hidden></label>
+                <label class="character" name="number" for="9">9<input type="checkbox" class="character" id="9"
+                        name="number" value="9" checked hidden></label>
+            </div>
+            <div class="symbols">
+                <label class="checkboxType" for="allSymbols">Symbols
+                    <input type="checkbox" name="allSymbol" id="allSymbols" hidden></label>
+                <label class="character" name="symbol" for="`">`<input type="checkbox" class="character" id="`"
+                        name="symbol" value="`" hidden></label>
+                <label class="character" name="symbol" for="~">~<input type="checkbox" class="character" id="~"
+                        name="symbol" value="~" hidden></label>
+                <label class="character" name="symbol" for="!">!<input type="checkbox" class="character" id="!"
+                        name="symbol" value="!" hidden></label>
+                <label class="character" name="symbol" for="@">@<input type="checkbox" class="character" id="@"
+                        name="symbol" value="@" hidden></label>
+                <label class="character" name="symbol" for="#">#<input type="checkbox" class="character" id="#"
+                        name="symbol" value="#" hidden></label>
+                <label class="character" name="symbol" for="$">$<input type="checkbox" class="character" id="$"
+                        name="symbol" value="$" hidden></label>
+                <label class="character" name="symbol" for="%">%<input type="checkbox" class="character" id="%"
+                        name="symbol" value="%" hidden></label>
+                <label class="character" name="symbol" for="^">^<input type="checkbox" class="character" id="^"
+                        name="symbol" value="^" hidden></label>
+                <label class="character" name="symbol" for="&">&<input type="checkbox" class="character" id="&"
+                        name="symbol" value="&" hidden></label>
+                <label class="character" name="symbol" for="*">*<input type="checkbox" class="character" id="*"
+                        name="symbol" value="*" hidden></label>
+                <label class="character" name="symbol" for="(">(<input type="checkbox" class="character" id="("
+                        name="symbol" value="(" hidden></label>
+                <label class="character" name="symbol" for=")">)<input type="checkbox" class="character" id=")"
+                        name="symbol" value=")" hidden></label>
+                <label class="character" name="symbol" for="-">-<input type="checkbox" class="character" id="-"
+                        name="symbol" value="-" hidden></label>
+                <label class="character" name="symbol" for="_">_<input type="checkbox" class="character" id="_"
+                        name="symbol" value="_" hidden></label>
+                <label class="character" name="symbol" for="=">=<input type="checkbox" class="character" id="="
+                        name="symbol" value="=" hidden></label>
+                <label class="character" name="symbol" for="+">+<input type="checkbox" class="character" id="+"
+                        name="symbol" value="+" hidden></label>
+                <label class="character" name="symbol" for="[">[<input type="checkbox" class="character" id="["
+                        name="symbol" value="[" hidden></label>
+                <label class="character" name="symbol" for="]">]<input type="checkbox" class="character" id="]"
+                        name="symbol" value="]" hidden></label>
+                <label class="character" name="symbol" for="{">{<input type="checkbox" class="character" id="{"
+                        name="symbol" value="{" hidden></label>
+                <label class="character" name="symbol" for="}">}<input type="checkbox" class="character" id="}"
+                        name="symbol" value="}" hidden></label>
+                <label class="character" name="symbol" for="\">\<input type="checkbox" class="character" id="\"
+                        name="symbol" value="\" hidden></label>
+                <label class="character" name="symbol" for="|">|<input type="checkbox" class="character" id="|"
+                        name="symbol" value="|" hidden></label>
+                <label class="character" name="symbol" for=";">;<input type="checkbox" class="character" id=";"
+                        name="symbol" value=";" hidden></label>
+                <label class="character" name="symbol" for=":">:<input type="checkbox" class="character" id=":"
+                        name="symbol" value=":" hidden></label>
+                <label class="character" name="symbol" for="'">'<input type="checkbox" class="character" id="'"
+                        name="symbol" value="'" hidden></label>
+                <label class="character" name="symbol" for='"'>"<input type="checkbox" class="character" id='"'
+                        name="symbol" value='"' hidden></label>
+                <label class="character" name="symbol" for=",">,<input type="checkbox" class="character" id=","
+                        name="symbol" value="," hidden></label>
+                <label class="character" name="symbol" for="<">&lt;<input type="checkbox" class="character" id="<"
+                        name="symbol" value="<" hidden></label>
+                <label class="character" name="symbol" for=".">.<input type="checkbox" class="character" id="."
+                        name="symbol" value="." hidden></label>
+                <label class="character" name="symbol" for=">">><input type="checkbox" class="character" id=">"
+                        name="symbol" value=">" hidden></label>
+                <label class="character" name="symbol" for="/">/<input type="checkbox" class="character" id="/"
+                        name="symbol" value="/" hidden></label>
+                <label class="character" name="symbol" for="?">?<input type="checkbox" class="character" id="?"
+                        name="symbol" value="?" hidden></label>
+            </div>
+        </div>
+        <div class="record">
+            <ul></ul>
+        </div>
+    </div>
+</body>
+
+</html>
