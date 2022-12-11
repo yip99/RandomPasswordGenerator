@@ -9,11 +9,15 @@
             font-family: monospace;
         }
 
+        #password {
+            max-width: 16ch;
+        }
+
         div.body {
             display: flex;
             margin: auto;
             justify-content: center;
-            width: 50%;
+            width: 60em;
         }
 
         div.generate,
@@ -32,7 +36,8 @@
         }
 
         input[type="text"],
-        input[type="number"] {
+        input[type="number"],
+        button#generate {
             border: 1px solid rgb(136, 136, 136);
         }
 
@@ -46,8 +51,14 @@
             opacity: .7;
         }
 
-        button#generate {
-            border: 1px solid rgb(136, 136, 136);
+        div.row {
+            display: flex;
+            width: 100%;
+            margin: 1px;
+        }
+
+        div.row>* {
+            flex: auto;
         }
 
         div.lowerCases,
@@ -132,11 +143,9 @@
 <body>
     <script>
         window.onload = function () {
-            for (let input of document.querySelectorAll('input[type="checkbox"]')) {
+            for (let input of document.querySelectorAll('input.character, input.characterType')) {
                 input.addEventListener("click", function (event) {
-                    let elementName = event.target.name;
-                    toggleAll(elementName);
-                    // event.preventDefault();
+                    toggleAll(event);
                 });
             }
             document.querySelector('input#password').addEventListener("click", function (event) {
@@ -147,7 +156,8 @@
             });
         }
 
-        function toggleAll(type) {
+        function toggleAll(event) {
+            let type = event.target.name;
             if (type.startsWith('all')) {
                 type = type.toLowerCase().split('all')[1];
                 let all = [];
@@ -164,6 +174,7 @@
                     });
                 } else {
                     document.querySelectorAll(`input[name="${type}"]`).forEach((element) => {
+                        event.target.checked = true;
                         element.checked = true;
                     });
                 }
@@ -176,7 +187,7 @@
                         checked.push(element.value);
                     }
                 });
-                if (all.length === checked.length) {
+                if (checked.length > 0) {
                     document.querySelector(`input[name="all${type[0].toUpperCase() + type.slice(1)}"]`).checked = true;
                 } else {
                     document.querySelector(`input[name="all${type[0].toUpperCase() + type.slice(1)}"]`).checked = false;
@@ -186,6 +197,7 @@
 
         function generate() {
             let length = document.querySelector('input#length').value;
+            let includeAllType = document.querySelector('input#includeAllType').checked;
             let characters = [];
             let charactersInclude = {};
             let lowerCases = [];
@@ -210,9 +222,11 @@
             characters = [...lowerCases, ...upperCases, ...numbers, ...symbols];
             charactersInclude = [lowerCases, upperCases, numbers, symbols];
 
-            for (let characterType of charactersInclude) {
-                if (characterType.length > 0 && password.length < length) {
-                    password += characterType[(Math.floor(Math.random() * characterType.length))];
+            if (includeAllType) {
+                for (let characterType of charactersInclude) {
+                    if (characterType.length > 0 && password.length < length) {
+                        password += characterType[(Math.floor(Math.random() * characterType.length))];
+                    }
                 }
             }
 
@@ -230,21 +244,23 @@
     </script>
     <div class="body">
         <div class="generate">
-            <div class="r1">
+            <div class="row">
                 <input type="text" id="password" /><button id="generate" onclick="generate()">Generate</button>
             </div>
-            <div class="r2">
+            <div class="row">
                 <label>Length:</label>
                 <input type="number" id="length" min="4" max="256" value="16"
                     oninput="document.querySelector('input#lengthSlider').value = this.value" />
-            </div>
-            <div class="r3">
                 <input type="range" min="4" max="256" value="16" class="slider" id="lengthSlider"
                     oninput="document.querySelector('input#length').value = this.value" />
             </div>
+            <div class="row">
+                Include all selected type
+                <input type="checkbox" id="includeAllType" checked>
+            </div>
             <div class="lowerCases">
                 <label class="checkboxType" for="allLowercase">Lowercase characters<input type="checkbox"
-                        name="allLowercase" id="allLowercase" checked hidden></label>
+                        class="characterType" name="allLowercase" id="allLowercase" checked hidden></label>
                 <label class="character" name="lowercase" for="a">a<input type="checkbox" class="character" id="a"
                         name="lowercase" value="a" checked hidden></label>
                 <label class="character" name="lowercase" for="b">b<input type="checkbox" class="character" id="b"
@@ -300,7 +316,7 @@
             </div>
             <div class="upperCases">
                 <label class="checkboxType" for="allUppercase">Uppercase characters<input type="checkbox"
-                        name="allUppercase" id="allUppercase" hidden></label>
+                        class="characterType" name="allUppercase" id="allUppercase" hidden></label>
                 <label class="character" name="uppercase" for="A">A<input type="checkbox" class="character" id="A"
                         name="uppercase" value="A" hidden></label>
                 <label class="character" name="uppercase" for="B">B<input type="checkbox" class="character" id="B"
@@ -356,7 +372,7 @@
             </div>
             <div class="numbers">
                 <label class="checkboxType" for="allNumber">Numbers
-                    <input type="checkbox" name="allNumber" id="allNumber" checked hidden></label>
+                    <input type="checkbox" class="characterType" name="allNumber" id="allNumber" checked hidden></label>
                 <label class="character" name="number" for="0">0<input type="checkbox" class="character" id="0"
                         name="number" value="0" checked hidden></label>
                 <label class="character" name="number" for="1">1<input type="checkbox" class="character" id="1"
@@ -380,7 +396,7 @@
             </div>
             <div class="symbols">
                 <label class="checkboxType" for="allSymbols">Symbols
-                    <input type="checkbox" name="allSymbol" id="allSymbols" hidden></label>
+                    <input type="checkbox" class="characterType" name="allSymbol" id="allSymbols" hidden></label>
                 <label class="character" name="symbol" for="`">`<input type="checkbox" class="character" id="`"
                         name="symbol" value="`" hidden></label>
                 <label class="character" name="symbol" for="~">~<input type="checkbox" class="character" id="~"
