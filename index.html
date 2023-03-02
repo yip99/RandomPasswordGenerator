@@ -156,9 +156,12 @@
             });
         }
 
+        // toggle button
         function toggleAll(event) {
             let type = event.target.name;
+            // user clicks on the type of symbol (lower case/upper case/number/symbol)
             if (type.startsWith('all')) {
+                // get the type of symbol
                 type = type.toLowerCase().split('all')[1];
                 let all = [];
                 let checked = [];
@@ -169,16 +172,19 @@
                     }
                 });
                 if (all.length === checked.length) {
+                    // if all checked, uncheck all
                     document.querySelectorAll(`input[name="${type}"]`).forEach((element) => {
                         element.checked = false;
                     });
                 } else {
+                    // else, check all
                     document.querySelectorAll(`input[name="${type}"]`).forEach((element) => {
                         event.target.checked = true;
                         element.checked = true;
                     });
                 }
             } else {
+                // the user clicks on the specific symbol
                 let all = [];
                 let checked = [];
                 document.querySelectorAll(`input[name="${type}"]`).forEach((element) => {
@@ -206,6 +212,7 @@
             let symbols = [];
             let password = '';
 
+            // push all checked symbol to array to generate random password
             for (let lowercase of document.querySelectorAll('input[name="lowercase"]:checked')) {
                 lowerCases.push(lowercase.value);
             }
